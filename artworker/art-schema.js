@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 const artworksSchema = new mongoose.Schema(
   {
-    text: String,
-    editing: Boolean,
+    title: String,
+    artist: String,
   },
   { collection: "artworks" }
 );

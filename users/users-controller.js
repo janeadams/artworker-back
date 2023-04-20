@@ -6,14 +6,14 @@ function UsersController(app) {
     const users = await usersDao.findAllUsers();
     res.send(users);
   };
-  const findUserById = async (req, res) => {
-    const id = req.params.id;
-    const user = await usersDao.findUserById(id);
-    res.send(user);
-  };
   const deleteUserById = async (req, res) => {
     const id = req.params.id;
     const status = await usersDao.deleteUser(id);
+    res.json(status);
+  };
+  const getUserById = async (req, res) => {
+    const id = req.params.id;
+    const status = await usersDao.findUserById(id);
     res.json(status);
   };
   const createUser = async (req, res) => {
@@ -22,9 +22,15 @@ function UsersController(app) {
   };
   const updateUser = async (req, res) => {
     const id = req.params.id;
-    const status = await usersDao.updateUser(id, req.body);
-    res.json(status);
-  };
+    const updatedUser = req.body;
+    const status = await usersDao.updateUser(id, updatedUser);
+    if (status.ok) {
+      const user = await usersDao.findUserById(id);
+      res.json(user);
+    } else {
+      res.sendStatus(500);
+    }
+  };  
   const login = async (req, res) => {
     const user = req.body;
     console.log(user);
@@ -69,6 +75,7 @@ function UsersController(app) {
   app.get("/api/users/profile", profile);
   app.post("/api/users/register", register);
   app.get("/api/users", findAllUsers);
+  app.get("/api/users/:id", getUserById);
   app.delete("/api/users/:id", deleteUserById);
   app.post("/api/users", createUser);
   app.put("/api/users/:id", updateUser);

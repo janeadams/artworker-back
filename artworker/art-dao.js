@@ -1,4 +1,4 @@
-import artworksModel from "./artworks-model.js";
+import artworksModel from "./art-model.js";
 
 export const findAllArtworks = async () => {
   const artworks = await artworksModel.find();
