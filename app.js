@@ -7,7 +7,9 @@ import SessionController from "./session-controller.js";
 import mongoose from "mongoose";
 import session from "express-session";
 
-mongoose.connect("mongodb://127.0.0.1:27017/artworker");
+mongoose.connect(
+  "mongodb+srv://janelydiaadams:982j5mMmHQjhm9H@cluster0.ezfsu0c.mongodb.net/artworker?retryWrites=true&w=majority"
+);
 
 const app = express();
 
