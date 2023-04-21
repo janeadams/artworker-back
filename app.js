@@ -7,13 +7,17 @@ import SessionController from "./session-controller.js";
 import mongoose from "mongoose";
 import session from "express-session";
 
-mongoose.connect(
-  "mongodb+srv://janelydiaadams:982j5mMmHQjhm9H@cluster0.ezfsu0c.mongodb.net/artworker?retryWrites=true&w=majority"
-);
+//mongoose.connect("mongodb+srv://janelydiaadams:982j5mMmHQjhm9H@cluster0.ezfsu0c.mongodb.net/artworker?retryWrites=true&w=majority");
+mongoose.connect("mongodb://localhost:27017/artworker");
 
 const app = express();
 
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+    origin: "http://localhost:3000",
+  })
+);
 app.use(express.json());
 app.use(
   session({

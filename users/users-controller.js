@@ -1,5 +1,5 @@
 import * as usersDao from "./users-dao.js";
-
+import * as artworkDao from "../artworker/art-dao.js";
 
 function UsersController(app) {
   const findAllUsers = async (req, res) => {
@@ -70,6 +70,42 @@ function UsersController(app) {
     }
   };
 
+  const updateUserLikes = async (req, res) => {
+    const userId = req.params.userId;
+    const artworkId = req.params.artworkId;
+  
+    // Find the user
+    console.log('userId:', userId);
+    const user = await usersDao.findUserById(userId);
+  
+    // Check if the artwork ID exists in the database
+    console.log('artworkId:', artworkId);
+    const artwork = await artworkDao.findArtworkById(artworkId);
+  
+    // If the artwork doesn't exist, create a new artwork record
+    if (!artwork) {
+      const newArtwork = await artworkDao.createArtwork(await artworkDao.getArtwork(artworkId));
+      artworkId = newArtwork._id;
+    }
+    // Add the artwork ID to the user's likes array
+    console.log('user:', user);
+    console.log('artworkId:', artworkId);
+    user.likes.push(artworkId);
+    //await usersDao.updateUser(userId, user);
+  
+    res.json(user);
+  };
+  
+
+  const getUserLikes = async (req, res) => {
+    console.log("getUserLikes")
+    console.log(req.params)
+    const userId = req.params.userId;
+    const user = await usersDao.findUserById(userId);
+    const likes = user.likes;
+    res.json(likes);
+  };
+
   app.post("/api/users/login", login);
   app.post("/api/users/logout", logout);
   app.get("/api/users/profile", profile);
@@ -79,6 +115,8 @@ function UsersController(app) {
   app.delete("/api/users/:id", deleteUserById);
   app.post("/api/users", createUser);
   app.put("/api/users/:id", updateUser);
+  app.post("/api/users/:userId/likes/:artworkId", updateUserLikes);
+  app.get("/api/users/:userId/likes", getUserLikes);
 }
 
 export default UsersController;

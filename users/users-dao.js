@@ -5,8 +5,13 @@ export const findAllUsers = async () => {
   return users;
 };
 
-export const findAllFaculty = async () => {
-  const users = await usersModel.find({ role: "FACULTY" });
+export const findAllCurators = async () => {
+  const users = await usersModel.find({ role: "CURATOR" });
+  return users;
+};
+
+export const findAllArtists = async () => {
+  const users = await usersModel.find({ role: "ARTIST" });
   return users;
 };
 
