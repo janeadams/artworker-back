@@ -12,6 +12,7 @@ function UsersController(app) {
     res.json(status);
   };
   const getUserById = async (req, res) => {
+    console.log("getUserById: " + req.params)
     const id = req.params.id;
     const status = await usersDao.findUserById(id);
     res.json(status);
@@ -71,37 +72,42 @@ function UsersController(app) {
   };
 
   const updateUserLikes = async (req, res) => {
-    const userId = req.params.userId;
+    console.log("updateUserLikes")
+    console.log(req.params)
+    const userId = req.params.id;
+    console.log(userId)
     const artworkId = req.params.artworkId;
+    console.log(artworkId)
   
-    // Find the user
-    console.log('userId:', userId);
-    const user = await usersDao.findUserById(userId);
+    try {
+      const user = await usersDao.findUserById(userId);
+      console.log(user)
   
-    // Check if the artwork ID exists in the database
-    console.log('artworkId:', artworkId);
-    const artwork = await artworkDao.findArtworkById(artworkId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
   
-    // If the artwork doesn't exist, create a new artwork record
-    if (!artwork) {
-      const newArtwork = await artworkDao.createArtwork(await artworkDao.getArtwork(artworkId));
-      artworkId = newArtwork._id;
+      if (user.likes.includes(artworkId)) {
+        return res.status(400).json({ error: 'Artwork already liked' });
+      }
+  
+      user.likes.push(artworkId);
+      await user.save();
+  
+      res.json(user);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Server error' });
     }
-    // Add the artwork ID to the user's likes array
-    console.log('user:', user);
-    console.log('artworkId:', artworkId);
-    user.likes.push(artworkId);
-    //await usersDao.updateUser(userId, user);
-  
-    res.json(user);
   };
   
 
   const getUserLikes = async (req, res) => {
     console.log("getUserLikes")
     console.log(req.params)
-    const userId = req.params.userId;
+    const userId = req.params.id;
     const user = await usersDao.findUserById(userId);
+    console.log(user)
     const likes = user.likes;
     res.json(likes);
   };
@@ -115,8 +121,8 @@ function UsersController(app) {
   app.delete("/api/users/:id", deleteUserById);
   app.post("/api/users", createUser);
   app.put("/api/users/:id", updateUser);
-  app.post("/api/users/:userId/likes/:artworkId", updateUserLikes);
-  app.get("/api/users/:userId/likes", getUserLikes);
+  app.post("/api/users/:id/likes/:artworkId", updateUserLikes);
+  app.get("/api/users/:id/likes", getUserLikes);
 }
 
 export default UsersController;

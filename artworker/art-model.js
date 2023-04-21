@@ -3,12 +3,6 @@
 // The code defines a Mongoose schema for artworks and then creates a Mongoose model using the schema. The model is then exported as the default export of the module, which can be imported and used in other parts of the codebase.
 
 import mongoose from "mongoose";
-
-const artworkSchema = new mongoose.Schema(
-  {},
-  { strict: false, collection: "artworks" }
-);
-
-const artworksModel = mongoose.model("artworks", artworkSchema);
-
-export default artworksModel;
+import artworkSchema from "./art-schema.js";
+const artModel = mongoose.model("artworks", artworkSchema);
+export default artModel;
