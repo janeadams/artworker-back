@@ -1,12 +1,24 @@
+import { findUserById } from "./../users/users-dao.js";
+
 function ProfileController(app) {
-  app.get("/profile/:name", function (req, res) {
-    const name = req.params.name;
-    const profile = {
-      name: name,
-      age: 20,
-      salary: 10000,
-    };
-    res.send(profile);
+  app.get("/profile/:id", async function (req, res) {
+    try {
+      const userId = req.params.id;
+      const user = await findUserById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      const profile = {
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        likes: user.likes,
+      };
+      res.json(profile);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Server error" });
+    }
   });
   app.get("/profile", function (req, res) {
     res.send("Profiles");

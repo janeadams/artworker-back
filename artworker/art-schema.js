@@ -1,10 +1,79 @@
 // In Mongoose, a schema is a blueprint for the structure of a document in a MongoDB collection. It defines the shape of the documents, including the field names, data types, and validation rules.
 
+
 import mongoose from "mongoose";
 
-const artworksSchema = new mongoose.Schema(
-  {},
-  { strict: false, collection: "artworks", validateBeforeSave: false }
-);
+const artworkSchema = new mongoose.Schema({
+  GalleryNumber: String,
+  accessionNumber: String,
+  accessionYear: String,
+  additionalImages: [String],
+  artistAlphaSort: String,
+  artistBeginDate: String,
+  artistDisplayBio: String,
+  artistDisplayName: String,
+  artistEndDate: String,
+  artistGender: String,
+  artistNationality: String,
+  artistPrefix: String,
+  artistRole: String,
+  artistSuffix: String,
+  artistULAN_URL: String,
+  artistWikidata_URL: String,
+  city: String,
+  classification: String,
+  constituents: [{
+    name: String,
+    role: String,
+  }],
+  country: String,
+  county: String,
+  creditLine: String,
+  culture: String,
+  department: String,
+  dimensions: String,
+  dynasty: String,
+  excavation: String,
+  geographyType: String,
+  isHighlight: Boolean,
+  isPublicDomain: Boolean,
+  isTimelineWork: Boolean,
+  linkResource: String,
+  locale: String,
+  locus: String,
+  measurements: [{
+    element: String,
+    unit: String,
+    value: String,
+  }],
+  medium: String,
+  metadataDate: Date,
+  objectBeginDate: Number,
+  objectDate: String,
+  objectEndDate: Number,
+  objectID: Number,
+  objectName: String,
+  objectURL: String,
+  objectWikidata_URL: String,
+  period: String,
+  portfolio: String,
+  primaryImage: String,
+  primaryImageSmall: String,
+  region: String,
+  reign: String,
+  repository: String,
+  rightsAndReproduction: String,
+  river: String,
+  state: String,
+  subregion: String,
+  tags: [{
+    AAT_URL: String,
+    Wikidata_URL: String,
+    name: String,
+  }],
+  title: String,
+},
+{collection: "artworks",
+  validateBeforeSave: false});
 
-export default artworksSchema;
+export default artworkSchema;

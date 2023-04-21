@@ -1,4 +1,6 @@
 import * as artworksDao from "./art-dao.js";
+import artworksModel from "./art-model.js";
+import { ObjectId } from 'mongodb';
 
 function ArtworkerController(app) {
   const findAllArtworks = async (req, res) => {
@@ -22,13 +24,48 @@ function ArtworkerController(app) {
     const status = await artworksDao.deleteArtwork(id);
     res.json(status);
   };
-  
-  const createArtwork = async (req, res) => {
-    console.log('CreateArtwork')
-    console.log(req.body)
-    const newArtwork = await artworksDao.createArtwork(req.body);
-    res.json(newArtwork);
+
+const createArtwork = async (req, res) => {
+  console.log("createArtwork: " + req.body.objectID);
+
+  // Validate the input data
+  const { title, artistDisplayName, medium } = req.body;
+  if (!title || !artistDisplayName || !medium) {
+    return res.status(400).json({ error: 'Invalid input data' });
+  }
+
+  // Normalize the data before checking for duplicates
+  const normalizedArtwork = {
+    title: title.trim().toLowerCase(),
+    artistDisplayName: artistDisplayName.trim().toLowerCase(),
+    medium: medium.trim().toLowerCase(),
+    // Add other fields as necessary
   };
+
+  const existingArtwork = await artworksModel.findOne(normalizedArtwork);
+  console.log("existingArtwork. Checking:");
+  console.log(normalizedArtwork);
+
+  if (existingArtwork) {
+    // Artwork already exists in the database, return an error response
+    return res.status(409).json({ error: 'Artwork already exists in the database' });
+  } else {
+    // Artwork does not exist in the database, create a new artwork document
+    try {
+      const newArtwork = new artworksModel({
+        ...req.body,
+        _id: new ObjectId(),
+      });
+      const savedArtwork = await newArtwork.save();
+      return res.json(savedArtwork);
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: 'Error saving artwork' });
+    }
+  }
+};
+
+  
   
   const updateArtwork = async (req, res) => {
     console.log('updateArtwork')

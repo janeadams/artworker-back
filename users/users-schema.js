@@ -8,6 +8,8 @@ const userSchema = new Schema({
   lastName: String,
   role: { type: String, default: "CURATOR", enum: ["CURATOR", "ARTIST"] },
   likes: [{ type: String }],
+  followers: [{ type: Schema.Types.ObjectId, ref: "User" }],
+  followees: [{ type: Schema.Types.ObjectId, ref: "User" }]
 },
 {
   collection: "users",
@@ -15,4 +17,3 @@ const userSchema = new Schema({
 });
 
 export default userSchema;
-
