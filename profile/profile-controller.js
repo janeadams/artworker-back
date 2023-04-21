@@ -8,6 +8,9 @@ function ProfileController(app) {
     };
     res.send(profile);
   });
+  app.get("/profile", function (req, res) {
+    res.send("Profiles");
+  });
   app.get("/login", function (req, res) {
     res.send("Login");
   });
