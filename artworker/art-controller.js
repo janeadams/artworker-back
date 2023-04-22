@@ -26,27 +26,41 @@ function ArtworkerController(app) {
   };
 
 const createArtwork = async (req, res) => {
-  console.log("createArtwork: " + req.body.objectID);
+  console.log("createArtwork: " + (req.body.objectID ? req.body.objectID : 'objectID not passed in!'));
+
+  const { objectID, title, artistDisplayName, medium, dimensions, primaryImage, primaryImageSmall } = req.body;
+
+  const isUserCreated = !req.body.objectID;
+
+  if (isUserCreated) {
+    console.log("creating new artwork: " + title)
+
+  }
 
   // Validate the input data
-  const { title, artistDisplayName, medium } = req.body;
+
   if (!title || !artistDisplayName || !medium) {
     return res.status(400).json({ error: 'Invalid input data' });
   }
 
   // Normalize the data before checking for duplicates
   const normalizedArtwork = {
-    title: title.trim().toLowerCase(),
-    artistDisplayName: artistDisplayName.trim().toLowerCase(),
-    medium: medium.trim().toLowerCase(),
+    objectID: objectID ? objectID.toString().trim().toLowerCase() : new ObjectId(),
+    title: title ? title.trim().toLowerCase() : '',
+    artistDisplayName: artistDisplayName ? artistDisplayName.trim().toLowerCase() : '',
+    medium: medium ? medium.trim().toLowerCase() : '',
+    dimensions: dimensions ? dimensions.toString().trim().toLowerCase() : '',
+    primaryImage: primaryImage ? primaryImage.trim().toLowerCase() : '',
+    primaryImageSmall: primaryImageSmall ? primaryImageSmall.trim().toLowerCase() : primaryImage,
     // Add other fields as necessary
   };
 
-  const existingArtwork = await artworksModel.findOne(normalizedArtwork);
-  console.log("existingArtwork. Checking:");
   console.log(normalizedArtwork);
 
+  const existingArtwork = await artworksModel.findOne(normalizedArtwork);
+
   if (existingArtwork) {
+    console.log(`Found ${existingArtwork.objectID} in the database`)
     // Artwork already exists in the database, return an error response
     return res.status(409).json({ error: 'Artwork already exists in the database' });
   } else {
@@ -57,6 +71,11 @@ const createArtwork = async (req, res) => {
         _id: new ObjectId(),
       });
       const savedArtwork = await newArtwork.save();
+      if (isUserCreated) {
+        console.log("saved new artwork:")
+        console.log(savedArtwork)
+    
+      }
       return res.json(savedArtwork);
     } catch (error) {
       console.error(error);

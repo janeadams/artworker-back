@@ -1,9 +1,12 @@
 import * as usersDao from "./users-dao.js";
+import mongoose from "mongoose";
 
 function UsersController(app) {
   const findAllUsers = async (req, res) => {
+    console.log("findAllUsers")
     try {
       const users = await usersDao.findAllUsers();
+      console.log(users)
       res.send(users);
     } catch (err) {
       console.error(err);
@@ -11,8 +14,10 @@ function UsersController(app) {
     }
   };
   const deleteUserById = async (req, res) => {
+    console.log("deleteUserById")
     try {
       const id = req.params.id;
+      console.log('id: ' + id)
       const status = await usersDao.deleteUser(id);
       res.json(status);
     } catch (err) {
@@ -21,17 +26,20 @@ function UsersController(app) {
     }
   };
   const getUserById = async (req, res) => {
+    console.log("getUserById")
     try {
-      console.log("getUserById: " + req.params);
       const id = req.params.id;
+      console.log('id: ' + id)
       const status = await usersDao.findUserById(id);
       res.json(status);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Server error" });
     }
+    console.log()
   };
   const createUser = async (req, res) => {
+    console.log("createUser")
     try {
       const user = await usersDao.createUser(req.body);
       res.json(user);
@@ -39,10 +47,13 @@ function UsersController(app) {
       console.error(err);
       res.status(500).json({ error: "Server error" });
     }
+    console.log()
   };
   const updateUser = async (req, res) => {
+    console.log("updateUser")
     try {
       const id = req.params.id;
+      console.log('id: ' + id)
       const updatedUser = req.body;
       const status = await usersDao.updateUser(id, updatedUser);
       if (status.ok) {
@@ -57,6 +68,7 @@ function UsersController(app) {
     }
   };  
   const login = async (req, res) => {
+    console.log("login")
     try {
       const user = req.body;
       console.log(user);
@@ -75,8 +87,10 @@ function UsersController(app) {
       console.error(err);
       res.status(500).json({ error: "Server error" });
     }
+    console.log()
   };
   const logout = async (req, res) => {
+    console.log("logout")
     try {
       req.session.destroy();
       res.sendStatus(204);
@@ -84,8 +98,10 @@ function UsersController(app) {
       console.error(err);
       res.status(500).json({ error: "Server error" });
     }
+    console.log()
   };
   const profile = async (req, res) => {
+    console.log("profile")
     try {
       console.log("users-controller -> profile");
       const currentUser = req.session["currentUser"];
@@ -97,11 +113,16 @@ function UsersController(app) {
       }
     } catch (err) {
       console.error(err);
+      console.log("req.params:")
+      console.log(req.params)
       res.status(500).json({ error: "Server error" });
     }
+    console.log()
   };
   const register = async (req, res) => {
+    console.log('register')
     const user = req.body;
+    console.log(user)
     try {
       const foundUser = await usersDao.findUserByUsername(req.body.username);
       if (foundUser) {
@@ -114,41 +135,48 @@ function UsersController(app) {
       console.error(err);
       res.status(500).json({ error: 'Server error' });
     }
+    console.log()
   };
   
   const addUserLike = async (req, res) => {
-    console.log("updateUserLikes");
+    console.log("addUserLike");
     console.log(req.params);
     const userId = req.params.id;
-    console.log(userId);
+    console.log("userId: " + userId);
     const artworkId = req.params.artworkId;
-    console.log(artworkId);
+    console.log("artworkId: " + artworkId);
   
     try {
-      const user = await usersDao.findUserById(userId);
-      console.log(user);
+
+      const user = mongoose.Types.ObjectId.isValid(userId) ? await usersDao.findUserById(userId) : null;
   
       if (!user) {
+        console.log(`User ${userId} not found`)
         return res.status(404).json({ error: 'User not found' });
       }
-  
-      if (user.likes.includes(artworkId)) {
-        return res.status(400).json({ error: 'Artwork already liked' });
+      else {
+        if (user.likes.includes(artworkId)) {
+          console.log("Artwork already liked")
+          return res.status(400).json({ error: 'Artwork already liked' });
+        }
+        user.likes.push(artworkId);
+        await user.save();
+        console.log("user.likes: " + user.likes)
+        res.json(user);
       }
-  
-      user.likes.push(artworkId);
-      await user.save();
-  
-      res.json(user);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Server error' });
     }
+    console.log()
   };
   
   const removeUserLike = async (req, res) => {
+    console.log("removeUserLike");
     const userId = req.params.id;
+    console.log("userId: " + userId)
     const artworkId = req.params.artworkId;
+    console.log("artworkId: " + artworkId)
     try {
       const user = await usersDao.findUserById(userId);
       if (!user) {
@@ -164,13 +192,14 @@ function UsersController(app) {
       console.error(err);
       res.status(500).json({ error: 'Server error' });
     }
+    console.log()
   };
   
   
   const getUserFollowers = async (req, res) => {
     console.log("getUserFollowers");
     const followed = req.params.id;
-    console.log(`followed: ${followed}`);
+    //console.log(`followed: ${followed}`);
   
     try {
       const followerUsers = await usersDao.findFollowersByFollowedId(followed);
@@ -179,30 +208,39 @@ function UsersController(app) {
       console.error(err);
       res.status(500).json({ error: 'Server error' });
     }
+    console.log()
   };
 
   const getUserLikes = async (req, res) => {
+    console.log("getUserLikes")
+    console.log("req.params:")
+    console.log(req.params)
     const userId = req.params.id;
     try {
       const user = await usersDao.findUserById(userId);
       if (!user) {
+        console.log("User not found")
         return res.status(404).json({ error: 'User not found' });
       }
       const likes = user.likes;
+      console.log("user.likes: " + user.likes)
       res.json(likes);
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: 'Server error' });
     }
+    console.log()
   };
   
   const followUser = async (req, res) => {
+    console.log("followUser")
     const followerId = req.params.followerId;
     const followedId = req.params.followedId;
     try {
       const followerUser = await usersDao.findUserById(followerId);
       const followedUser = await usersDao.findUserById(followedId);
       if (!followerUser || !followedUser) {
+        console.log("User not found")
         return res.status(404).json({ error: 'User not found' });
       }
       await usersDao.followUser(followerId, followedId);
@@ -211,15 +249,18 @@ function UsersController(app) {
       console.error(err);
       res.status(500).json({ error: 'Server error' });
     }
+    console.log()
   };
   
   const unfollowUser = async (req, res) => {
+    console.log("unfollowUser")
     const followerId = req.params.followerId;
     const followedId = req.params.followedId;
     try {
       const followerUser = await usersDao.findUserById(followerId);
       const followedUser = await usersDao.findUserById(followedId);
       if (!followerUser || !followedUser) {
+        console.log("User not found")
         return res.status(404).json({ error: 'User not found' });
       }
       await usersDao.unfollowUser(followerId, followedId);
@@ -228,9 +269,11 @@ function UsersController(app) {
       console.error(err);
       res.status(500).json({ error: 'Server error' });
     }
+    console.log()
   };
   
   const getUserFollowees = async (req, res) => {
+    console.log("getUserFollowees");
     const followerId = req.params.id;
     try {
       const followees = await usersDao.findFolloweesByFollowerId(followerId);
@@ -239,6 +282,7 @@ function UsersController(app) {
       console.error(error);
       res.sendStatus(500);
     }
+    console.log()
   };
   
   

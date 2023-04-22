@@ -47,7 +47,7 @@ export const findAllByRole = async (role) => {
 export const findUserById = async (id) => {
   console.log("findUserById: " + id)
   try {
-    const user = await usersModel.findOne({ id });
+    const user = await usersModel.findById(id);
     return user;
   } catch (err) {
     console.error(err);
@@ -109,3 +109,25 @@ export const updateUser = async (id, user) => {
     return null;
   }
 };
+
+export const findFollowersByFollowedId = async (followedId) => {
+  console.log("findFollowersByFollowedId: " + followedId)
+  try {
+    const users = await usersModel.find({ followedId });
+    return users;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
+
+export const findFolloweesByFollowerId = async (followerId) => {
+  console.log("findFolloweesByFollowerId: " + followerId)
+  try {
+    const users = await usersModel.find({ followerId });
+    return users;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
+}
